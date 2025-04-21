@@ -124,7 +124,10 @@
     </div>
     <div class="titulo">Transferência recebida</div>
     <div class="mensagem" id="mensagem">Recebemos sua transferência de R$ 0,01.</div>
-      
+    <div class="botoes">
+      <button>Gerenciar</button>
+      <button>Limpar tudo</button>
+    </div>
   </div>
 
   <script>
@@ -155,39 +158,36 @@
       }
     };
 
-    // Função para solicitar permissão e gerar notificação real
-    function gerarNotificacaoReal(titulo, mensagem, iconeUrl) {
-      if (Notification.permission === "granted") {
-        new Notification(titulo, {
-          body: mensagem,
-          icon: iconeUrl
-        });
-      } else if (Notification.permission !== "denied") {
-        Notification.requestPermission().then(permission => {
-          if (permission === "granted") {
-            new Notification(titulo, {
-              body: mensagem,
-              icon: iconeUrl
-            });
-          }
-        });
-      }
-    }
-
     function gerarNotificacao() {
       const bancoKey = document.getElementById('bancoSelecionado').value;
       const valor = document.getElementById('valor').value;
-
       const banco = logos[bancoKey];
+
+      // Atualiza a notificação visual na tela
       document.getElementById('appInfo').innerText = `${banco.nome} • agora`;
       document.getElementById('logoBanco').src = banco.url;
       document.getElementById('logoBanco').alt = banco.nome;
       document.getElementById('mensagem').innerText = `Recebemos sua transferência de ${valor}.`;
-
       document.getElementById('notificacao').style.display = 'block';
 
-      // Gerar a notificação real
-      gerarNotificacaoReal("Transferência Recebida", `Recebemos sua transferência de ${valor}.`, banco.url);
+      // Notificação real do sistema
+      if ("Notification" in window) {
+        if (Notification.permission === "granted") {
+          new Notification("Transferência recebida", {
+            body: `Recebemos sua transferência de ${valor}`,
+            icon: banco.url
+          });
+        } else if (Notification.permission !== "denied") {
+          Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+              new Notification("Transferência recebida", {
+                body: `Recebemos sua transferência de ${valor}`,
+                icon: banco.url
+              });
+            }
+          });
+        }
+      }
     }
   </script>
 
